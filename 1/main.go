@@ -28,7 +28,7 @@ func main() {
 	healthChecks := []HealthCheck{
 		{URL: "http://localhost:8080/healthz", HealthyStatusCode: http.StatusOK},
 		{URL: "http://localhost:8080/healthz2", HealthyStatusCode: http.StatusMovedPermanently},
-		{URL: "http://localhost:8080/healthz3", HealthyStatusCode: http.StatusOK},
+		// {URL: "http://localhost:8080/healthz3", HealthyStatusCode: http.StatusOK},
 	}
 	for _, h := range healthChecks {
 		if ok := h.Do(); !ok {
