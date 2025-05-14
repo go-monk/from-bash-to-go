@@ -2,7 +2,7 @@
 
 > Bash is great until it isn't.
 
-If you're in DevOps, SRE, or cybersecurity, you’ve probably written countless Bash scripts to automate or glue things together. Bash is a good tool for these tasks, provided the programs are small and simple. However, as they grow more complex, they become harder to understand and modify. Additionally, the dependency on external tools (like `curl`, `awk`, `jq`) makes them difficult to deploy across diverse systems. Well-written programs in Go alleviate these Bash shortcomings significantly and bring new advantages, including a cultural agenda of radical simplicity. I began using Go (after experimenting with Python) for tools, automation, security, and integration work in 2018. I have never looked back.
+If you're in DevOps, SRE, or cybersecurity, you’ve probably written countless Bash scripts to automate or glue things together. Bash is a good tool for these tasks, provided the programs are small and simple. However, as they grow more complex, they become harder to understand and modify. Additionally, the dependency on external tools (like `curl`, `awk`, `jq`) makes them difficult to deploy across diverse systems. Well-written programs in Go alleviate these Bash shortcomings significantly and bring new advantages, including a cultural agenda of radical simplicity.
 
 ## 0) Quick Health Check Script 
 
