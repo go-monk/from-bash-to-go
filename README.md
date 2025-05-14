@@ -2,7 +2,7 @@
 
 > Bash is great until it isn't.
 
-If you're in DevOps, SRE, or cybersecurity, you’ve probably written countless Bash scripts to automate or glue things together. Bash is a good tool for these tasks, provided the programs are small and simple. However, as they grow more complex, they become harder to understand and modify. Additionally, the dependency on external tools (like `curl`, `awk`, `jq`) makes them difficult to deploy across diverse systems. Well-written programs in Go alleviate these Bash shortcomings significantly and bring new advantages, including a cultural agenda of radical simplicity.
+If you're in DevOps, SRE, or cybersecurity, you’ve probably written countless Bash scripts to automate or glue things together. Bash is a good tool for these tasks, provided the programs are small and simple. However, as they grow more complex, they become harder to understand and modify. Additionally, the dependency on external tools (like `curl`, `awk`, `jq`) makes them difficult to deploy across diverse systems. Well-written programs in Go alleviate these Bash shortcomings significantly and bring new advantages, including a cultural agenda of radical simplicity that brings more joy :-).
 
 ## 0) Quick Health Check Script 
 
@@ -86,7 +86,7 @@ type HealthCheck struct {
 }
 ```
 
-Next, create a method attached to this custom type—via the `(h HealthCheck)` part—that performs the check:
+Next, create a function attached to this custom type—via the `(h HealthCheck)` part—that performs the check:
 
 ```go
 func (h HealthCheck) Do() bool {
@@ -140,9 +140,9 @@ Hmm. After some investigation, you discover that the endpoint takes 3 seconds to
 
 ## 3) Read Configuration from a JSON File
 
-At this point, the script is outgrowing the original "quick and dirty" approach. It would be better to read the health check endpoints configuration from a file. A JSON file is a simple and effective choice.
+At this point, it's clear that the script is outgrowing the original "quick and dirty" approach. It would be better to read the health check endpoints configuration from a file. A JSON file is a simple choice to start with.
 
-Create a function to read a file and return a slice (list) of health checks:
+Create a function to read a file and return a slice of health checks:
 
 ```go
 func readConfig(filepath string) ([]HealthCheck, error) {
