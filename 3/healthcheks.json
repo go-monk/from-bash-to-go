@@ -1,0 +1,4 @@
+[
+    {"URL": "http://localhost:8080/health", "HealthyStatusCode": 200},
+    {"URL": "http://localhost:8080/health", "HealthyStatusCode": 301, "TimeoutSeconds": 3}
+]
