@@ -2,11 +2,11 @@
 
 > Bash is great until it isn't.
 
-If you're in DevOps, SRE or cybersecurity, you’ve probably written a thousand Bash scripts to automate or glue things together. And Bash is a good tool for these tasks providing the programs are small and simple. But the moment they get just a bit more complex, things start falling apart. Slowly but surely they'll become harder and harder to understand and modify. Also the dependency on external tools (like `curl`, `awk`, `jq`) makes them difficult to deploy to diverse systems. Well written programs in Go alleviate all of the mentioned Bash shortcomings significantly and bring new advantages of which a cultural agenda of radical simplicity is not the least. I began using Go (after experimenting with Python) for tools, automation, security and integration work in 2018. I have never looked back. 
+If you're in DevOps, SRE, or cybersecurity, you’ve probably written countless Bash scripts to automate or glue things together. Bash is a good tool for these tasks, provided the programs are small and simple. However, as they grow more complex, they become harder to understand and modify. Additionally, the dependency on external tools (like `curl`, `awk`, `jq`) makes them difficult to deploy across diverse systems. Well-written programs in Go alleviate these Bash shortcomings significantly and bring new advantages, including a cultural agenda of radical simplicity. I began using Go (after experimenting with Python) for tools, automation, security, and integration work in 2018. I have never looked back.
 
-## 0) Quick healthcheck script 
+## 0) Quick Health Check Script 
 
-Look at this simple healthcheck script:
+Consider this simple health check script:
 
 ```sh
 #!/bin/bash
@@ -15,12 +15,12 @@ URL="http://localhost:8080/healthz"
 
 STATUS=$(curl -s -o /dev/null -w "%{http_code}" -m 2 $URL)
 if [ "$STATUS" -ne 200 ]; then
-  echo "Service unhealthy!"
-  exit 1
+	echo "Service unhealthy!"
+	exit 1
 fi
 ```
 
-Here's a Go equivalent:
+Here's the Go equivalent:
 
 ```go
 package main
@@ -44,13 +44,13 @@ func main() {
 }
 ```
 
-If you want to test the programs above, you can run a dummy web server with /healthz endpoints:
+To test the programs above, you can run a dummy web server with `/healthz` endpoints:
 
 ```sh
 go run ./healthz/main.go
 ```
 
-No you can run the scripts:
+Now you can run the scripts:
 
 ```sh
 ./0/healthcheck.sh 
@@ -60,24 +60,24 @@ go run ./0/healthcheck.go
 go build ./0/healthcheck.go && ./healthcheck
 ```
 
-(Remember the Unix philosophy, no news is good news :-). Also you can check the exit status of the commands with `echo $?` - zero means all good.)
+(Remember the Unix philosophy: no news is good news :-). You can check the exit status of the commands with `echo $?`—zero means all good.)
 
-Not much difference at first sight, except for the syntax of course. However, the Go code has no external dependencies and can be compiled to run on any operating system and CPU architecture. For example, if you are developing on a Mac but you want to deploy to a Linux server:
+At first glance, there isn't much difference except for the syntax. However, the Go code has no external dependencies and can be compiled to run on any operating system and CPU architecture. For example, if you are developing on a Mac but want to deploy to a Linux server:
 
 ```sh
 GOOS=linux GOARCH=arm64 go build ./0/healthcheck.go
 scp healthcheck user@linuxbox.com:
 ```
 
-Now, small scripts do get often extended.
+Small scripts often grow over time.
 
-## 1) Check multiple services 
+## 1) Check Multiple Services 
 
-A colleague of yours or your boss come to like the script and they want you (or somobody else) to add some functionality. It should healthcheck more than one service. Sure, no problem you think. But when extending the script you find out that one of the services replies with 301 status instead of 200 (yeah, things tend to get messy).
+A colleague or your boss likes the script and asks you (or someone else) to add functionality to health check more than one service. Sure, no problem, you think. But when extending the script, you discover that one of the services replies with a 301 status instead of 200 (well, things tend to get messy).
 
-Ok, let's continue with Go since it's becoming more complex.
+Let's continue with Go since the task is becoming more complex.
 
-First, we define a custom type (a struct with two fields of type string and intenger) that will hold data about the healthcheck endpoints:
+First, define a custom type (a struct with two fields: a string and an integer) to hold data about the health check endpoints:
 
 ```go
 type HealthCheck struct {
@@ -86,7 +86,7 @@ type HealthCheck struct {
 }
 ```
 
-Next, create a function attached to this custom type - via the `(h HealthCheck)` part - that will do the check:
+Next, create a method attached to this custom type—via the `(h HealthCheck)` part—that performs the check:
 
 ```go
 func (h HealthCheck) Do() bool {
@@ -103,9 +103,9 @@ func (h HealthCheck) Do() bool {
 }
 ```
 
-We use the standard library [http](https://pkg.go.dev/net/http) package in place of `curl`. You can use `go doc http.Get` to see details about the Get method. The function (or method) returns a bool that says wether the service is healthy (true) or not (false).
+We use the standard library [http](https://pkg.go.dev/net/http) package instead of `curl`. You can use `go doc http.Get` to see details about the `Get` method from the package. Our `Do` method returns a boolean indicating whether the service is healthy (`true`) or not (`false`).
 
-Finally, let's define the services we want to healthcheck as a slice of `HealtCheck`s. Then we loop over them and call the `Do` method on each:
+Finally, define the services to health check as a slice of `HealthCheck` structs. Then loop over them and call the `Do` method on each:
 
 ```go
 	healthChecks := []HealthCheck{
@@ -119,30 +119,30 @@ Finally, let's define the services we want to healthcheck as a slice of `HealtCh
 	}
 ```
 
-We check the program compiles and runs:
+Check that the program compiles and runs:
 
 ```sh
 go run ./1/main.go
 ```
 
-Ok, nice. Let's grab a cup of coffee, we deserve it ...
+Nice! Time for a coffee break—you deserve it.
 
-## 2) Different timeout
+## 2) Different Timeouts
 
-You come back to your desk with a coffee and read a Slack message: "please add also healthz3 endpoint to your script ...". Sure, easy enough - we add `{URL: "http://localhost:8080/healthz3", HealthyStatusCode: http.StatusOK},` and run the script:
+You return to your desk with a coffee and see a Slack message like "please add the `healthz3` endpoint to your script". Sure, easy enough—you add `{URL: "http://localhost:8080/healthz3", HealthyStatusCode: http.StatusOK},` and run the script:
 
 ```sh
 ❯ go run ./1/main.go 
 http://localhost:8080/healthz3 is unhealthy
 ```
 
-Hmmm. After some investigation you find out that the endpoint takes 3 seconds to reply. You let the guy know over the Slack and he says: "yeah I know, that's fine". Luckily we just need to make couple of easy changes to accomodate for this slow service. Run `diff ./1/main.go ./2/main.go` to see those changes.
+Hmm. After some investigation, you discover that the endpoint takes 3 seconds to reply. You inform the requester, and they reply, "yeah, i know, that's fine". Ok then. Luckily, you just need to make a couple of easy changes to accommodate this slow service. Run `diff ./1/main.go ./2/main.go` to see the changes.
 
-## 3) Read configuration from JSON file
+## 3) Read Configuration from a JSON File
 
-As you can see that this thing is outgrowing the original "quick and dirty script" approach. You think it would be nicer to read the healtcheck endpoints configuration from a file. Probably the easiest way is to work with a JSON file.
+At this point, the script is outgrowing the original "quick and dirty" approach. It would be better to read the health check endpoints configuration from a file. A JSON file is a simple and effective choice.
 
-We create a function for reading a file and returning a slice (list) of healthchecks:
+Create a function to read a file and return a slice (list) of health checks:
 
 ```go
 func readConfig(filepath string) ([]HealthCheck, error) {
@@ -158,7 +158,7 @@ func readConfig(filepath string) ([]HealthCheck, error) {
 }
 ```
 
-And we replace the harcoded healthchecks in `main()` like this:
+Replace the hardcoded health checks in `main()` like this:
 
 ```go
 	healthChecks, err := readConfig("healthchecks.json")
@@ -168,4 +168,4 @@ And we replace the harcoded healthchecks in `main()` like this:
 	}
 ```
 
-As an exercise remove the hardcoded filename (`healthchecks.json`) and get the filename from the command arguments instead.
+As an exercise, remove the hardcoded filename (`healthchecks.json`) and get the filename from the command-line arguments instead.
