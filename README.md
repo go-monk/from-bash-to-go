@@ -44,40 +44,44 @@ func main() {
 }
 ```
 
-To test the programs above, you can run a dummy web server with `/healthz` endpoints:
+To test the programs above, you can run a dummy web server from the `healthz` folder:
 
 ```sh
 go run ./healthz/main.go
 ```
 
+The server exposes three endpoints:
+
+- http://localhost:8080/healthz - returns 200 (OK)
+- http://localhost:8080/healthz2 - returns 301 (moved permanently)
+- http://localhost:8080/healthz3 - returns 200 after three seconds
+
 Now you can run the scripts:
 
 ```sh
+# The Bash script.
 ./0/healthcheck.sh 
 
+# The Go "script".
 go run ./0/healthcheck.go
-# or
-go build ./0/healthcheck.go && ./healthcheck
 ```
 
-(Remember the Unix philosophy: no news is good news :-). You can check the exit status of the commands with `echo $?`—zero means all good.)
+Remember the Unix philosophy: no news is good news :-). You can check the exit status of each of the above commands with `echo $?` - 0 means all good.
 
-At first glance, there isn't much difference except for the syntax. However, the Go code has no external dependencies and can be compiled to run on any operating system and CPU architecture. For example, if you are developing on a Mac but want to deploy to a Linux server:
+At first glance, there isn't much difference except for the syntax. However, the Go code has no external dependencies and can be compiled to run on any operating system and CPU architecture. For example, if you are developing on a Mac but want to deploy to a Linux server you simply do:
 
 ```sh
 GOOS=linux GOARCH=arm64 go build ./0/healthcheck.go
 scp healthcheck user@linuxbox.com:
 ```
 
-Small scripts often grow over time.
+But we are not done. Small scripts often grow over time.
 
 ## 1) Check Multiple Services 
 
-A colleague or your boss likes the script and asks you (or someone else) to add functionality to health check more than one service. Sure, no problem, you think. But when extending the script, you discover that one of the services replies with a 301 status instead of 200 (well, things tend to get messy).
+A colleague or your boss likes the script and asks you (or someone else) to add functionality to health check more than one service. Sure, no problem, you think. But when extending the script, you discover that one of the services (simulated by the `/healthz2` endpoint) replies with a 301 status instead of 200. Well, things tend to get messy. Let's continue with Go since the task is becoming more complex.
 
-Let's continue with Go since the task is becoming more complex.
-
-First, define a custom type (a struct with two fields: a string and an integer) to hold data about the health check endpoints:
+First, define a custom type - a struct with two fields: a string and an integer - to hold data about the health check endpoints:
 
 ```go
 type HealthCheck struct {
@@ -86,7 +90,7 @@ type HealthCheck struct {
 }
 ```
 
-Next, create a function attached to this custom type—via the `(h HealthCheck)` part—that performs the check:
+Next, create a function attached to this custom type — the attaching is done via the `(h HealthCheck)` part — that performs the check:
 
 ```go
 func (h HealthCheck) Do() bool {
@@ -103,7 +107,7 @@ func (h HealthCheck) Do() bool {
 }
 ```
 
-We use the standard library [http](https://pkg.go.dev/net/http) package instead of `curl`. You can use `go doc http.Get` to see details about the `Get` method from the package. Our `Do` method returns a boolean indicating whether the service is healthy (`true`) or not (`false`).
+We use the standard library [http](https://pkg.go.dev/net/http) package that comes with Go instead of the external `curl` command. You can use `go doc http.Get` in your terminal to see details about the `Get` method from the package. Our `Do` method returns a boolean indicating whether the service is healthy (`true`) or not (`false`).
 
 Finally, define the services to health check as a slice of `HealthCheck` structs. Then loop over them and call the `Do` method on each:
 
@@ -125,11 +129,11 @@ Check that the program compiles and runs:
 go run ./1/main.go
 ```
 
-Nice! Time for a coffee break—you deserve it.
+Nice! Time for a coffee break, you deserve it.
 
 ## 2) Different Timeouts
 
-You return to your desk with a coffee and see a Slack message like "please add the `healthz3` endpoint to your script". Sure, easy enough—you add `{URL: "http://localhost:8080/healthz3", HealthyStatusCode: http.StatusOK},` and run the script:
+You return to your desk with a coffee and see a Slack message like "please add the `healthz3` endpoint to your script". Sure, easy enough—you add `{URL: "http://localhost:8080/healthz3", HealthyStatusCode: http.StatusOK},` (uncomment this line in `./1/main.go` if you want to follow along) and run the script:
 
 ```sh
 ❯ go run ./1/main.go 
@@ -168,4 +172,12 @@ Replace the hardcoded health checks in `main()` like this:
 	}
 ```
 
-As an exercise, remove the hardcoded filename (`healthchecks.json`) and get the filename from the command-line arguments instead.
+As an exercise, remove the hardcoded filename (`healthchecks.json`) and get the filename from the command-line arguments instead. Hint:
+
+```
+$ go doc os.Args
+package os // import "os"
+
+var Args []string
+    Args hold the command-line arguments, starting with the program name.
+```

@@ -18,6 +18,7 @@ func (h HealthCheck) Do() bool {
 	if err != nil {
 		return false
 	}
+	defer resp.Body.Close()
 	if resp.StatusCode != h.HealthyStatusCode {
 		return false
 	}
