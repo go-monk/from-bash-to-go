@@ -1,5 +1,11 @@
 If you're in DevOps, SRE, or cybersecurity, you’ve probably written countless Bash scripts to automate or glue things together. Bash is a good tool for these tasks, provided the programs are small and simple. However, as they grow more complex, they become harder to understand and modify. Additionally, the dependency on external tools (like `curl`, `awk`, `jq`) makes them difficult to deploy across diverse systems. Well-written programs in Go alleviate these Bash shortcomings significantly and bring new advantages, including a cultural agenda of radical simplicity that brings more joy :-).
 
+Follow a quick tutorial to give you a taste of migrating from Bash to Go. For a deeper dive, see this series:
+
+- https://github.com/go-monk/from-bash-to-go-part-i
+- https://github.com/go-monk/from-bash-to-go-part-ii
+- https://github.com/go-monk/from-bash-to-go-part-iii
+
 ## 0) Quick Health Check Script 
 
 Consider this simple health check script:
